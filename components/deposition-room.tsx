@@ -118,15 +118,18 @@ export function DepositionRoom({ token }: { token: string }) {
     }
   }
 
+  // WHY: the server rejects an empty string. Blank boxes are omitted instead of weakening that check.
+  const spokenAnswers = answers.map((answer) => answer.trim()).filter((answer) => answer.length > 0);
+
   /** Ask for a draft only. This request does not file the ruling. */
   async function draftRuling() {
-    if (!opened) return;
+    if (!opened || spokenAnswers.length === 0) return;
     setBusy(true);
     setError(null);
     const response = await fetch("/api/rulings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ answers }),
+      body: JSON.stringify({ answers: spokenAnswers }),
     });
     const body = (await response.json()) as { draft?: RulingDraft; error?: { message: string } };
     setBusy(false);
@@ -143,7 +146,7 @@ export function DepositionRoom({ token }: { token: string }) {
     const response = await fetch("/api/rulings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ confirm: true, answers }),
+      body: JSON.stringify({ confirm: true, answers: spokenAnswers }),
     });
     setBusy(false);
     if (!response.ok) {
@@ -200,9 +203,12 @@ export function DepositionRoom({ token }: { token: string }) {
           </li>
         ))}
       </ol>
-      <Button type="button" disabled={busy} onClick={() => void draftRuling()}>
-        Draft ruling
-      </Button>
+      <div className="flex flex-wrap items-center gap-3">
+        <Button type="button" disabled={busy || spokenAnswers.length === 0} onClick={() => void draftRuling()}>
+          Draft ruling
+        </Button>
+        <p className="text-sm text-muted-foreground">One answer is enough. Leave the other boxes blank.</p>
+      </div>
       {draft ? (
         <article className="rounded-md border bg-card p-4">
           <h2 className="font-serif text-2xl">Proposed ruling</h2>
