@@ -1,3 +1,4 @@
+/** The context-dial matrix, including Sofie's ruling and the rule that Karim cannot sign. */
 import { describe, expect, it } from "vitest";
 import { runAsk } from "@/lib/ask";
 import { loadExperts, loadSources, signRuling } from "@/lib/corpus";

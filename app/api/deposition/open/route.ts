@@ -1,3 +1,4 @@
+/** Check a deposition token and set the short-lived cookie later calls use. The token itself is not reused as a session. */
 import { z } from "zod";
 import { HttpError, jsonError, readJson } from "@/lib/http";
 import { clientIp, rateLimit } from "@/lib/rate-limit";

@@ -1,3 +1,4 @@
+/** The country is a dial, not part of the question, so Belgium, the Netherlands, and Germany share one prompt. */
 export const DEMO_QUESTION =
   "What is the cut-off date for submitting payroll changes for the monthly run?";
 

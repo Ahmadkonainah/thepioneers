@@ -1,3 +1,4 @@
+/** Self-hosted fonts. No third-party font request, so the content security policy can keep font-src on this origin. */
 import type { Metadata } from "next";
 import { Fraunces, Source_Sans_3 } from "next/font/google";
 import "./globals.css";

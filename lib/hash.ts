@@ -1,3 +1,7 @@
+/**
+ * Hashing and constant-time compare for cookies, witness tokens, rulings, and custody.
+ * safeEqual returns false on a length mismatch so timingSafeEqual is never called on unequal buffers.
+ */
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 
 export function sha256(value: string): string {

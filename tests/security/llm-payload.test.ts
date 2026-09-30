@@ -1,3 +1,4 @@
+/** The quarantined wiki never appears in the prompt, and hosted requests have no separate sources field. */
 import { describe, expect, it } from "vitest";
 import { runAsk } from "@/lib/ask";
 import { loadExperts, loadSources } from "@/lib/corpus";

@@ -1,6 +1,7 @@
 import { base64urlDecode, base64urlEncode, hmacSha256, safeEqual } from "@/lib/hash";
 import { personaSchema, type Persona } from "@/lib/types";
 
+/** Persona cookie. The signature covers the role and the expiry, so the client cannot switch role by editing the value. */
 export const PERSONA_COOKIE = "bop_persona";
 const TWELVE_HOURS_MS = 12 * 60 * 60 * 1000;
 

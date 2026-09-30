@@ -1,3 +1,7 @@
+/**
+ * OpenAI-compatible and Anthropic clients. Errors name the HTTP status only.
+ * Response bodies are not copied into the error, because a provider might echo the prompt.
+ */
 import type { LlmClient } from "@/lib/llm/client";
 import { mockLlmClient } from "@/lib/llm/mock";
 
@@ -38,6 +42,7 @@ function parseModelJson(content: string): unknown {
   }
 }
 
+/** One JSON POST with a timeout. A network failure is LLM_UNAVAILABLE, never a made-up answer. */
 async function postJson(url: string, headers: Record<string, string>, body: unknown): Promise<unknown> {
   let response: Response;
   try {

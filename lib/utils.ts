@@ -1,3 +1,4 @@
+/** Merge conditional class names and let later Tailwind utilities win. */
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 

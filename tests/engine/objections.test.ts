@@ -1,3 +1,4 @@
+/** One case per objection type, plus the dates that must not become cut-offs. */
 import { describe, expect, it } from "vitest";
 import { filterByAccess } from "@/lib/engine/access";
 import { detectConflicts } from "@/lib/engine/conflicts";

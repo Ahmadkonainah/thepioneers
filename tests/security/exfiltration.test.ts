@@ -1,3 +1,4 @@
+/** A crafted question must not pull the finance reference or the poisoned wiki into the model payload. */
 import { describe, expect, it } from "vitest";
 import { runAsk } from "@/lib/ask";
 import { loadExperts, loadSources } from "@/lib/corpus";

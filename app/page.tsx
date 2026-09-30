@@ -1,5 +1,6 @@
 import { CaseFile } from "@/components/case-file";
 
+/** The case file plus the privacy notice. The notice is server-rendered so it is present before the exam runs. */
 export default function HomePage() {
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-6 md:px-8">

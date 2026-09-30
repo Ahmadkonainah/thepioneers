@@ -1,3 +1,4 @@
+/** Build a source with a real content hash, and a model double that records every string it was given. */
 import { sha256 } from "@/lib/hash";
 import type { LlmClient } from "@/lib/llm/client";
 import type { Context, Source } from "@/lib/types";

@@ -1,3 +1,4 @@
+/** HTTP ask: validation, the per-IP limit, the Belgian Standard verdict, and the signed persona cookie. */
 import { describe, expect, it } from "vitest";
 import { POST as ask } from "@/app/api/ask/route";
 import { GET as getSession, POST as postSession } from "@/app/api/session/route";

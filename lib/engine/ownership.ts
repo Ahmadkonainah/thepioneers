@@ -1,3 +1,7 @@
+/**
+ * A source with no owner can still be quoted, but the reader is warned.
+ * The judge applies this only when the source actually contributed a claim.
+ */
 import type { Objection, Source } from "@/lib/types";
 
 export function ownershipObjections(sources: readonly Source[]): Objection[] {

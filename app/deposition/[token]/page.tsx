@@ -1,3 +1,4 @@
+/** Verify the token on the server before rendering questions. A bad link never receives the deposition room. */
 import { DepositionRoom } from "@/components/deposition-room";
 import { readWitnessToken } from "@/lib/witness";
 

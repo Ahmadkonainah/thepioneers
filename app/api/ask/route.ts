@@ -1,3 +1,4 @@
+/** Cross-examine one question. The persona comes from the signed cookie, not from the JSON body. */
 import { runAsk } from "@/lib/ask";
 import { readPersonaFromRequest } from "@/lib/auth";
 import { loadCaseFile, loadExperts } from "@/lib/corpus";

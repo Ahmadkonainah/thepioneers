@@ -1,3 +1,7 @@
+/**
+ * Draft, then sign. confirm:true uses the transcript already stored on the session.
+ * The browser cannot send a day of its own and have it filed.
+ */
 import { readCookie } from "@/lib/auth";
 import {
   loadExperts,

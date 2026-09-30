@@ -1,3 +1,4 @@
+/** Switch the signed persona cookie. The body is only the role name. It cannot carry documents. */
 import { personaCookieHeader, readPersonaFromRequest } from "@/lib/auth";
 import { HttpError, jsonError, readJson } from "@/lib/http";
 import { clientIp, rateLimit } from "@/lib/rate-limit";

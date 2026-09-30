@@ -1,3 +1,4 @@
+/** Transcribe one recording. The mime type and the 5 MB cap are checked before the bytes are forwarded. */
 import { readCookie } from "@/lib/auth";
 import { HttpError, jsonError, readLimitedBody } from "@/lib/http";
 import { clientIp, rateLimit } from "@/lib/rate-limit";

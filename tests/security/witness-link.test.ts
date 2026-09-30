@@ -1,3 +1,4 @@
+/** Tampered, expired, and sealed witness links are rejected. An unsealed link can be resumed. */
 import { describe, expect, it } from "vitest";
 import { createWitnessLink, openWitnessLink, readWitnessToken, resetWitnessStore, resumeWitnessLink, sealWitnessSession } from "@/lib/witness";
 

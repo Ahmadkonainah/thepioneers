@@ -1,3 +1,4 @@
+/** Read a deposition question aloud. Any other text is rejected, so corpus documents cannot be sent to speech. */
 import { readCookie } from "@/lib/auth";
 import { HttpError, jsonError, readJson } from "@/lib/http";
 import { clientIp, rateLimit } from "@/lib/rate-limit";

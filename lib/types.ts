@@ -1,3 +1,7 @@
+/**
+ * Shared contracts. API bodies and model payloads are parsed with these schemas.
+ * A value that fails to parse is rejected. It is not coerced into a guess.
+ */
 import { z } from "zod";
 
 export const sourceKindSchema = z.enum(["procedure", "wiki", "chat", "calendar", "ruling"]);

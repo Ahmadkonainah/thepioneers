@@ -1,5 +1,9 @@
 "use client";
 
+/**
+ * One deposition. Voice is tried first. A failed microphone or speech call switches to typed answers
+ * and says which mode is active. Sign ruling is a second request after the draft is on screen.
+ */
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { Context, RulingDraft } from "@/lib/types";
@@ -43,6 +47,7 @@ export function DepositionRoom({ token }: { token: string }) {
     return () => controller.abort();
   }, [token]);
 
+  /** Play one question already issued by the server. Failure leaves the typed fields in place. */
   async function play(question: string) {
     setBusy(true);
     try {
@@ -69,6 +74,7 @@ export function DepositionRoom({ token }: { token: string }) {
     }
   }
 
+  /** Eight seconds of audio, sent once. The recording is not kept after the transcript returns. */
   async function record(index: number) {
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
       setMode("typed");
@@ -112,6 +118,7 @@ export function DepositionRoom({ token }: { token: string }) {
     }
   }
 
+  /** Ask for a draft only. This request does not file the ruling. */
   async function draftRuling() {
     if (!opened) return;
     setBusy(true);
@@ -130,6 +137,7 @@ export function DepositionRoom({ token }: { token: string }) {
     setDraft(body.draft);
   }
 
+  /** Human confirmation. The server signs the transcript it already stored. */
   async function sign() {
     setBusy(true);
     const response = await fetch("/api/rulings", {

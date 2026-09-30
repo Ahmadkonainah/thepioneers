@@ -62,6 +62,7 @@ export function prepareCorpus(
   };
 }
 
+/** Keep a claim only when its quote is an exact cut-off excerpt of a source we sent to the model. */
 export function acceptClaims(claims: readonly Claim[], sources: readonly Source[]): Claim[] {
   const grounded = groundClaims(claims, sources);
   return grounded.accepted.filter(
@@ -69,6 +70,7 @@ export function acceptClaims(claims: readonly Claim[], sources: readonly Source[
   );
 }
 
+/** Ruling claims come from the signed object, not from a second model pass. */
 export function claimsFromRulings(rulings: readonly Ruling[], context: Context): Claim[] {
   const claims: Claim[] = [];
   for (const ruling of rulings) {
@@ -83,6 +85,7 @@ export function claimsFromRulings(rulings: readonly Ruling[], context: Context):
   return claims;
 }
 
+/** A ruling applies when the as-of date is on or after validFrom and the scope matches the dials. */
 export function rulingInContext(ruling: Ruling, context: Context): boolean {
   if (context.asOf < ruling.validFrom) return false;
   return sourceInScope(
@@ -111,6 +114,10 @@ export interface Judgement {
   noInScopeClaims: boolean;
 }
 
+/**
+ * Apply a matching ruling first, then warn only on sources that still contribute a claim.
+ * Conflicts are computed on fresh claims, so a stale calendar cannot force Verify first by itself.
+ */
 export function judge(input: {
   extracted: readonly Claim[];
   modelSources: readonly Source[];
@@ -253,6 +260,7 @@ export function judge(input: {
   };
 }
 
+/** Stored quote for a ruling. It matches the cut-off patterns so later exams can ground it. */
 export function rulingClaimText(day: number): string {
   return `Signed ruling. The payroll-change cut-off is the ${day}.`;
 }

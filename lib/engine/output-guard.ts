@@ -5,6 +5,7 @@ import type { Claim, Objection, Source } from "@/lib/types";
 export const SAFE_NO_CUTOFF =
   "No claim survived cross-examination, so no cut-off date is stated. Resolve the open objections before acting.";
 
+/** One day, stated the same way every time. Two days, or none, is not an answer. */
 export function wordFromClaims(claims: readonly Claim[]): string {
   const days = claims
     .filter((claim) => claim.field === "cutoff_day")

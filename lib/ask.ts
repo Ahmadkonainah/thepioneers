@@ -1,3 +1,8 @@
+/**
+ * One question through the engine, then the model.
+ * Access filtering and quarantine finish inside prepareCorpus, before extractClaims.
+ * A conflict or an empty claim set never asks the model to pick a day.
+ */
 import { buildCustody } from "@/lib/engine/custody";
 import { judge, prepareCorpus } from "@/lib/engine/judge";
 import {

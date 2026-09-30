@@ -1,3 +1,7 @@
+/**
+ * Scope is country, plan, and an optional validity window.
+ * A miss is information only: the source stays visible as out of scope and does not block Act.
+ */
 import type { Context, Objection, Source } from "@/lib/types";
 
 export function sourceInScope(source: Source, context: Context): boolean {

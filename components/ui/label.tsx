@@ -1,5 +1,6 @@
 "use client";
 
+/** Label bound to a control id so the dials stay usable from the keyboard. */
 import * as React from "react";
 import * as LabelPrimitive from "@radix-ui/react-label";
 import { cn } from "@/lib/utils";

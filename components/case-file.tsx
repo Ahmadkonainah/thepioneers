@@ -1,5 +1,9 @@
 "use client";
 
+/**
+ * The case file. Dials debounce into POST /api/ask.
+ * Call the witness only navigates. It does not sign anything.
+ */
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -103,6 +107,7 @@ export function CaseFile() {
     }
   }
 
+  /** The cookie is set by the server. Local state updates only after that succeeds. */
   async function switchPersona(next: Persona) {
     setError(null);
     const response = await fetch("/api/session", {
@@ -117,6 +122,7 @@ export function CaseFile() {
     setPersona(next);
   }
 
+  /** Ask the server for a signed link. The expert id comes from the objection, not from a free-text field. */
   async function callWitness(expertId: string, sourceIds: string[]) {
     const response = await fetch("/api/witness/link", {
       method: "POST",
@@ -302,6 +308,7 @@ export function CaseFile() {
   );
 }
 
+/** Quote, owner, age, and hash. Quarantined sources show that the text was withheld, not the text. */
 function EvidenceDrawer({ objectionSourceIds, result }: { objectionSourceIds: string[]; result: AskResponse }) {
   const ids = objectionSourceIds.length > 0 ? objectionSourceIds : [];
   const rows = result.dossier.filter((entry) => ids.includes(entry.id));
@@ -326,6 +333,7 @@ function EvidenceDrawer({ objectionSourceIds, result }: { objectionSourceIds: st
   );
 }
 
+/** Placeholder while the first exam is in flight. Hidden from assistive tech because the region is aria-live. */
 function Skeleton() {
   return (
     <div className="flex flex-col gap-3" aria-hidden="true">

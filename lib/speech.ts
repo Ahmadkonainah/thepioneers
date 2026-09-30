@@ -9,6 +9,7 @@ export class SpeechUnavailable extends Error {
   }
 }
 
+/** The SDK is constructed only when a request needs it, and only on the server. */
 function client(): ElevenLabsClient {
   const apiKey = process.env.ELEVENLABS_API_KEY;
   if (!apiKey) throw new SpeechUnavailable("ELEVENLABS_API_KEY is not set.");

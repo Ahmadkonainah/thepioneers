@@ -11,6 +11,7 @@ import {
   type Source,
 } from "@/lib/types";
 
+/** Seed files are parsed on every read so a bad edit fails closed instead of reaching the model. */
 function readJson(name: string): unknown {
   const file = path.join(process.cwd(), "data", name);
   return JSON.parse(fs.readFileSync(file, "utf8")) as unknown;
@@ -28,6 +29,7 @@ export function loadRulings(): Ruling[] {
   return rulingSchema.array().parse(readJson("rulings.json"));
 }
 
+/** Stable bytes for the HMAC. Array order must not change the signature, so superseded ids are sorted. */
 export function canonicalRuling(ruling: Omit<Ruling, "signature">): string {
   return JSON.stringify({
     id: ruling.id,
@@ -53,6 +55,7 @@ export function rulingIsAuthentic(ruling: Ruling, secret = sessionSecret()): boo
   return safeEqual(signRuling(ruling, secret), ruling.signature);
 }
 
+/** A signed ruling becomes an ordinary source. Its text is the short quote, not the raw transcript. */
 export function rulingToSource(ruling: Ruling, ownerName = ruling.givenBy): Source {
   return {
     id: ruling.id,
@@ -69,6 +72,7 @@ export function rulingToSource(ruling: Ruling, ownerName = ruling.givenBy): Sour
   };
 }
 
+/** Write via a temp file and rename so a crash cannot leave a half-written rulings file. */
 export function saveRulings(rulings: readonly Ruling[]): void {
   const file = path.join(process.cwd(), "data", "rulings.json");
   const temporary = `${file}.tmp`;

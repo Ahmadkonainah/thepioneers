@@ -1,3 +1,4 @@
+/** Surface for a single objection or ruling. */
 import * as React from "react";
 import { cn } from "@/lib/utils";
 

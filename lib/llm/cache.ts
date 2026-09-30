@@ -1,3 +1,7 @@
+/**
+ * In-memory cache keyed by the question and the content hashes, not by the answer text.
+ * A changed document misses the cache. Failures are not stored, so a later retry can succeed.
+ */
 import { sha256 } from "@/lib/hash";
 
 const cache = new Map<string, unknown>();

@@ -1,3 +1,4 @@
+/** Multi-line question field. The minimum height keeps the demo question visible. */
 import * as React from "react";
 import { cn } from "@/lib/utils";
 

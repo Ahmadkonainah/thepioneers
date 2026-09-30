@@ -1,3 +1,4 @@
+/** The Gemini key is a header, is absent when unset, and is named only in the server module. */
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";

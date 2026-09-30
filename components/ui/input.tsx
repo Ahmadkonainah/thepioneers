@@ -1,3 +1,4 @@
+/** Text field with the same focus ring as the other controls. */
 import * as React from "react";
 import { cn } from "@/lib/utils";
 

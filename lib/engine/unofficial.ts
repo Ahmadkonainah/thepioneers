@@ -1,3 +1,7 @@
+/**
+ * Chat is not a controlled procedure. It can supply a claim and still be unofficial.
+ * Karim's Flex message is the case this exists for.
+ */
 import type { Objection, Source } from "@/lib/types";
 
 export function unofficialObjections(sources: readonly Source[]): Objection[] {

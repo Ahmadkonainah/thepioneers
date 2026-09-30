@@ -1,3 +1,4 @@
+/** The finance canary must stay out of a consultant prompt even when the model echoes whatever it was given. */
 import { describe, expect, it } from "vitest";
 import { runAsk } from "@/lib/ask";
 import { loadExperts, loadSources } from "@/lib/corpus";

@@ -1,3 +1,4 @@
+/** Severity chip. The colour repeats the word, so colour is not the only signal. */
 import type { HTMLAttributes } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";

@@ -1,3 +1,7 @@
+/**
+ * Offline stand-in for the model. Extraction uses the same cut-off patterns as the engine,
+ * so tests do not depend on a network and cannot invent a day the patterns reject.
+ */
 import { wordFromClaims } from "@/lib/engine/output-guard";
 import { claimFromText } from "@/lib/engine/cutoff";
 import type { LlmClient } from "@/lib/llm/client";

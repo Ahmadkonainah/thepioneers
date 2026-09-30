@@ -37,6 +37,7 @@ export function resetWitnessStore(): void {
   sessionByNonce.clear();
 }
 
+/** The token carries ids, expert, expiry, and nonce. The question text stays in server memory. */
 export function signWitnessToken(payload: WitnessPayload, secret = sessionSecret()): string {
   const body = base64urlEncode(JSON.stringify(payload));
   return `${body}.${hmacSha256(body, secret)}`;

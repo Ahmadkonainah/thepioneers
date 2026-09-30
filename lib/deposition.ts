@@ -4,6 +4,7 @@ import type { Claim, Context, Expert, RulingDraft } from "@/lib/types";
 
 const SUPERSEDED_BE = ["be-procedure-v4", "teams-karim-flex", "be-calendar-2024"];
 
+/** Questions are built here, not taken from the browser, and each one quotes the sources in conflict. */
 export function buildDepositionQuestions(claims: readonly Claim[], titles: ReadonlyMap<string, string>): string[] {
   const quoted = claims.slice(0, 3).map((claim) => {
     const title = titles.get(claim.sourceId) ?? claim.sourceId;

@@ -1,3 +1,4 @@
+/** Mint a deposition link. Questions are rebuilt from the corpus so the client cannot supply the quotes. */
 import { readPersonaFromRequest } from "@/lib/auth";
 import { loadCaseFile, loadExperts } from "@/lib/corpus";
 import { buildDepositionQuestions } from "@/lib/deposition";

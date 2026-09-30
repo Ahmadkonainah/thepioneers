@@ -1,3 +1,4 @@
+/** Critical beats warn, warn beats a clean record, and no claim refuses to guess. */
 import { describe, expect, it } from "vitest";
 import { decideVerdict, verdict } from "@/lib/engine/verdict";
 import type { Objection } from "@/lib/types";
