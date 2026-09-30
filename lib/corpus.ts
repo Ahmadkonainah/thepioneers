@@ -12,53 +12,41 @@ import {
 } from "@/lib/types";
 
 /**
- * Seed files are parsed on every read so a bad edit fails closed instead of reaching the model.
- * WHY: the file name used to be a parameter joined onto data/. Aikido flagged that as file inclusion.
- * Each branch now opens one literal leaf, and the resolved path must stay inside data/.
+ * WHY: readFileSync must not take a path built from a parameter. Aikido treats that
+ * parameter as attacker-controlled even after an allowlist. Each seed is a literal.
  */
-const SEED_ROOT = path.resolve(process.cwd(), "data");
+const SOURCES_FILE = path.join(process.cwd(), "data", "sources.json");
+const EXPERTS_FILE = path.join(process.cwd(), "data", "experts.json");
+const RULINGS_FILE = path.join(process.cwd(), "data", "rulings.json");
 
-function seedFile(name: "sources.json" | "experts.json" | "rulings.json"): string {
-  let file: string;
-  switch (name) {
-    case "sources.json":
-      file = path.join(SEED_ROOT, "sources.json");
-      break;
-    case "experts.json":
-      file = path.join(SEED_ROOT, "experts.json");
-      break;
-    case "rulings.json":
-      file = path.join(SEED_ROOT, "rulings.json");
-      break;
-    default:
-      throw new Error("Refusing to read a path outside the seed directory.");
-  }
-  const resolved = path.resolve(file);
-  if (path.dirname(resolved) !== SEED_ROOT) {
-    throw new Error("Refusing to read a path outside the seed directory.");
-  }
-  return resolved;
+function readSourcesJson(): unknown {
+  return JSON.parse(fs.readFileSync(SOURCES_FILE, "utf8")) as unknown;
 }
 
+function readExpertsJson(): unknown {
+  return JSON.parse(fs.readFileSync(EXPERTS_FILE, "utf8")) as unknown;
+}
+
+function readRulingsJson(): unknown {
+  return JSON.parse(fs.readFileSync(RULINGS_FILE, "utf8")) as unknown;
+}
+
+/** Rejects anything other than the three seed leaves. This check is not used to build a path. */
 export function assertSeedName(name: string): "sources.json" | "experts.json" | "rulings.json" {
   if (name === "sources.json" || name === "experts.json" || name === "rulings.json") return name;
   throw new Error("Refusing to read a path outside the seed directory.");
 }
 
-function readJson(name: "sources.json" | "experts.json" | "rulings.json"): unknown {
-  return JSON.parse(fs.readFileSync(seedFile(name), "utf8")) as unknown;
-}
-
 export function loadSources(): Source[] {
-  return sourceSchema.array().parse(readJson("sources.json"));
+  return sourceSchema.array().parse(readSourcesJson());
 }
 
 export function loadExperts(): Expert[] {
-  return expertSchema.array().parse(readJson("experts.json"));
+  return expertSchema.array().parse(readExpertsJson());
 }
 
 export function loadRulings(): Ruling[] {
-  return rulingSchema.array().parse(readJson("rulings.json"));
+  return rulingSchema.array().parse(readRulingsJson());
 }
 
 /** Stable bytes for the HMAC. Array order must not change the signature, so superseded ids are sorted. */
@@ -106,7 +94,7 @@ export function rulingToSource(ruling: Ruling, ownerName = ruling.givenBy): Sour
 
 /** Write via a temp file and rename so a crash cannot leave a half-written rulings file. */
 export function saveRulings(rulings: readonly Ruling[]): void {
-  const file = seedFile("rulings.json");
+  const file = RULINGS_FILE;
   const temporary = `${file}.tmp`;
   fs.writeFileSync(temporary, `${JSON.stringify(rulings, null, 2)}\n`);
   fs.renameSync(temporary, file);

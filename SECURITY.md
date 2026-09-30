@@ -25,6 +25,6 @@ Burden of Proof is a synthetic demo. It stores no customer data and no real pers
 
 ## Pipeline security (Aikido)
 
-Aikido SAST flagged the seed reader in `lib/corpus.ts` because a file name was joined onto `data/` and then read. The reader now opens only the literals `sources.json`, `experts.json`, and `rulings.json`, and it refuses a resolved path whose directory is not `data/`. `assertSeedName` rejects `..`, extra segments, and any other name before a read.
+Aikido SAST flagged `readFileSync` in `lib/corpus.ts` because a filename argument reached it. The three seed files are now module-level constants (`data/sources.json`, `data/experts.json`, `data/rulings.json`). No function parameter is passed into `readFileSync` or `writeFileSync`. `assertSeedName` still rejects any other name, and it is not used to build a path.
 
 `GEMINI_API_KEY` is read only in `lib/llm.ts`. `.env` and `.env.local` are gitignored, and `.env.example` keeps the value empty so a committed key does not reach the scanner. Gemini requests set `store: false`. A Gemini `LlmError` falls back to the mock extractor and labels the response `mock-fallback` instead of inventing an answer.
