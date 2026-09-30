@@ -133,5 +133,6 @@ export function getLlmClient(): LlmClient {
   if (provider === "mock") return mockLlmClient;
   if (provider === "openai") return openAiClient();
   if (provider === "anthropic") return anthropicClient();
+  // The Gemini client lives in lib/llm.ts. This file does not read that API key.
   throw new LlmError("LLM_UNAVAILABLE", `Unknown LLM_PROVIDER "${provider}".`);
 }

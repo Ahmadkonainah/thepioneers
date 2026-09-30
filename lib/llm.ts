@@ -1,15 +1,116 @@
 import { cacheKey, getCached, setCached } from "@/lib/llm/cache";
 import type { LlmClient } from "@/lib/llm/client";
 import { buildAnswerUser, buildExtractUser, SYSTEM_ANSWER, SYSTEM_EXTRACT } from "@/lib/llm/prompt";
-import { getLlmClient, LlmError } from "@/lib/llm/providers";
+import { getLlmClient as getHostedClient, LlmError } from "@/lib/llm/providers";
 import { claimSchema, type Claim, type Source } from "@/lib/types";
 import { z } from "zod";
 
 const claimListSchema = z.object({ claims: z.array(claimSchema) }).strict();
 const answerPayloadSchema = z.object({ answer: z.string().min(1).max(4000) }).strict();
 
-export { getLlmClient, LlmError } from "@/lib/llm/providers";
+const GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/interactions";
+const DEFAULT_GEMINI_MODEL = "gemini-3.8-flash";
+
+export { LlmError } from "@/lib/llm/providers";
 export type { LlmClient } from "@/lib/llm/client";
+
+if (typeof window !== "undefined") {
+  throw new Error("lib/llm.ts runs on the server only.");
+}
+
+/**
+ * WHY: GEMINI_API_KEY is read only in this module, and it is not a NEXT_PUBLIC_ variable,
+ * so Next.js does not inline it into the browser bundle. The value is sent as a header,
+ * never as a query parameter that access logs would keep.
+ */
+function readGeminiApiKey(): string {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) throw new LlmError("LLM_UNAVAILABLE", "GEMINI_API_KEY is not set.");
+  return key;
+}
+
+export function geminiRequestBody(system: string, user: string, model: string) {
+  return {
+    model,
+    system_instruction: system,
+    input: user,
+    // WHY: store false asks Gemini not to retain the payroll question. EU data minimisation.
+    store: false,
+    generation_config: { thinking_level: "low" as const },
+  };
+}
+
+function parseModelJson(content: string): unknown {
+  const trimmed = content.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+  try {
+    return JSON.parse(trimmed) as unknown;
+  } catch {
+    throw new LlmError("LLM_INVALID_OUTPUT", "LLM response was not JSON.");
+  }
+}
+
+function readGeminiText(payload: unknown): string {
+  if (!payload || typeof payload !== "object") {
+    throw new LlmError("LLM_INVALID_OUTPUT", "LLM response was not JSON.");
+  }
+  const record = payload as { output_text?: unknown; steps?: unknown };
+  if (typeof record.output_text === "string" && record.output_text.trim()) return record.output_text.trim();
+  if (!Array.isArray(record.steps) || record.steps.length === 0) {
+    throw new LlmError("LLM_INVALID_OUTPUT", "LLM response missing content.");
+  }
+  const last = record.steps[record.steps.length - 1];
+  if (!last || typeof last !== "object") {
+    throw new LlmError("LLM_INVALID_OUTPUT", "LLM response missing content.");
+  }
+  const content = (last as { content?: unknown }).content;
+  const parts = Array.isArray(content) ? content : [content];
+  const texts = parts.flatMap((part) => {
+    if (typeof part === "string") return [part];
+    if (part && typeof part === "object" && typeof (part as { text?: unknown }).text === "string") {
+      return [(part as { text: string }).text];
+    }
+    return [];
+  });
+  const joined = texts.join("").trim();
+  if (!joined) throw new LlmError("LLM_INVALID_OUTPUT", "LLM response missing content.");
+  return joined;
+}
+
+function geminiClient(): LlmClient {
+  return {
+    async complete({ system, user }) {
+      const key = readGeminiApiKey();
+      const model = process.env.LLM_MODEL || DEFAULT_GEMINI_MODEL;
+      let response: Response;
+      try {
+        response = await fetch(GEMINI_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "x-goog-api-key": key,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(geminiRequestBody(system, user, model)),
+          signal: AbortSignal.timeout(20_000),
+        });
+      } catch {
+        throw new LlmError("LLM_UNAVAILABLE", "LLM request failed.");
+      }
+      if (!response.ok) throw new LlmError("LLM_UNAVAILABLE", `LLM HTTP ${response.status}.`);
+      let payload: unknown;
+      try {
+        payload = (await response.json()) as unknown;
+      } catch {
+        throw new LlmError("LLM_INVALID_OUTPUT", "LLM response was not JSON.");
+      }
+      return parseModelJson(readGeminiText(payload));
+    },
+  };
+}
+
+export function getLlmClient(): LlmClient {
+  if ((process.env.LLM_PROVIDER ?? "mock") === "gemini") return geminiClient();
+  return getHostedClient();
+}
 
 function coerceClaimList(raw: unknown): unknown {
   if (!raw || typeof raw !== "object" || !("claims" in raw)) return raw;

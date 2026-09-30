@@ -12,5 +12,5 @@ Burden of Proof is a synthetic demo. It stores no customer data and no real pers
 | Voice audio | Retention of a voice recording | Audio is held in memory for one request and is not written to disk. The ruling stores a transcript hash | `lib/speech.ts` |
 | API abuse | Flooding or oversized bodies | Per-route IP limits and byte caps, including 5MB and a mime allowlist for audio | `lib/rate-limit.ts`, `lib/http.ts` |
 | Browser embedding | Clickjacking, MIME sniffing | CSP `frame-ancestors 'none'`, `nosniff`, `Referrer-Policy: no-referrer` | `next.config.ts` |
-| Secrets | Key copied into client code | Secrets are read from `process.env` on the server. `.env` is gitignored | `.env.example` |
+| Secrets | Key copied into client code or committed | `GEMINI_API_KEY` is read only in `lib/llm.ts` on the server. `.env` and `.env.local` are gitignored | `lib/llm.ts`, `.gitignore` |
 | Model answer | Invented or leaked cut-off | Output is zod-validated, quotes must be exact, and a day that no surviving claim supports is discarded | `lib/llm.ts`, `lib/engine/output-guard.ts` |
