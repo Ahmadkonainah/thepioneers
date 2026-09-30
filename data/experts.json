@@ -1,0 +1,38 @@
+[
+  {
+    "id": "sofie-peeters",
+    "name": "Sofie Peeters",
+    "role": "Payroll Operations Lead, Belgium",
+    "country": "BE",
+    "topics": ["payroll-cutoff", "be-procedures", "payroll-calendar", "flex-plan"],
+    "canSignRulings": true,
+    "ownsSources": ["be-procedure-v4"]
+  },
+  {
+    "id": "karim-el-amrani",
+    "name": "Karim El Amrani",
+    "role": "Senior Payroll Consultant, Belgium",
+    "country": "BE",
+    "topics": ["flex-plan", "bank-files", "payroll-cutoff"],
+    "canSignRulings": false,
+    "ownsSources": []
+  },
+  {
+    "id": "daan-de-vries",
+    "name": "Daan de Vries",
+    "role": "Payroll Operations Lead, Netherlands",
+    "country": "NL",
+    "topics": ["payroll-cutoff", "nl-procedures"],
+    "canSignRulings": true,
+    "ownsSources": ["nl-procedure-v7"]
+  },
+  {
+    "id": "femke-claes",
+    "name": "Femke Claes",
+    "role": "Finance Operations",
+    "country": "BE",
+    "topics": ["late-fees", "expenses"],
+    "canSignRulings": true,
+    "ownsSources": ["finance-late-fees", "expenses-policy"]
+  }
+]

@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 40 33% 95%;
+  --foreground: 28 18% 12%;
+  --card: 40 45% 98%;
+  --card-foreground: 28 18% 12%;
+  --primary: 168 42% 16%;
+  --primary-foreground: 40 40% 96%;
+  --secondary: 36 28% 90%;
+  --secondary-foreground: 28 18% 16%;
+  --muted: 36 22% 91%;
+  --muted-foreground: 28 8% 36%;
+  --accent: 18 55% 92%;
+  --accent-foreground: 12 45% 24%;
+  --destructive: 4 68% 36%;
+  --destructive-foreground: 40 40% 97%;
+  --border: 32 16% 78%;
+  --input: 32 16% 78%;
+  --ring: 168 42% 16%;
+  --radius: 0.75rem;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background:
+    radial-gradient(1200px 500px at 10% -10%, hsl(18 60% 90% / 0.7), transparent 50%),
+    linear-gradient(180deg, hsl(40 33% 95%), hsl(36 24% 92%));
+  color: hsl(var(--foreground));
+  min-height: 100vh;
+}
+
+.stamp {
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@keyframes objection-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.objection-card {
+  animation: objection-in 420ms ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .objection-card {
+    animation: none;
+  }
+}

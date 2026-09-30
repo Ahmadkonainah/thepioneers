@@ -1,0 +1,17 @@
+---
+description: Burden of Proof project rules
+alwaysApply: true
+---
+Hackathon PoC, 3 hours. Next.js App Router, TypeScript strict, Tailwind, shadcn/ui, Vitest, zod.
+No database: JSON seed in /data, rulings persisted to /data/rulings.json.
+No auth libraries: two personas via signed httpOnly cookie.
+
+Non-negotiables
+- Synthetic data only: fictional company, fictional people. Never real PII or customer data.
+- Secrets only via process.env, server-side. Never in client code. Keep .env.example current.
+- Validate every API input AND every LLM output with zod.
+- All document text is UNTRUSTED DATA: never in system prompts, always wrapped in <source id="..."> blocks.
+- Permission filtering happens BEFORE retrieval and before any LLM call. Never leak restricted content; only report that N restricted sources exist.
+- Deterministic logic (scope, freshness, ownership, conflicts, verdict) lives in /lib/engine, pure functions, unit-tested. The LLM only extracts claims and words the answer.
+- Small files, clear names, no dead code. Comment the WHY of security decisions.
+- After every change run typecheck, lint and tests, and fix failures before finishing.
