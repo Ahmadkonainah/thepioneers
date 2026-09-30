@@ -25,6 +25,10 @@ export async function POST(request: Request): Promise<Response> {
   if (!rateLimit(`session:${clientIp(request)}`).ok) {
     return jsonError(429, "RATE_LIMITED", "Too many requests. Try again in a minute.");
   }
+  // WHY: posting a role name is a demo control. Outside the demo it would let a caller become finance.
+  if (process.env.DEMO_MODE !== "true") {
+    return jsonError(403, "FORBIDDEN", "Persona switching is disabled.");
+  }
   try {
     const body = await readJson(request, 2_000);
     if (!body || typeof body !== "object" || !("persona" in body)) {

@@ -4,6 +4,15 @@ An employee asks a payroll question. Instead of a confidence score, the app cros
 
 The people, documents, and company are fictional. Nothing in `data/` is a customer record.
 
+## How this answers the challenge
+
+| | What the build does |
+| --- | --- |
+| Trust | There is no confidence score. The verdict is Act, Act with care, or Verify first, from objections the engine can show. Restricted text stays out. A ruling is HMAC-signed, and a person must click Sign ruling. |
+| Capture | The question, the country, plan, and as-of dials, and an optional voice deposition are captured. Audio is not stored. The ruling keeps a transcript hash. |
+| Detect | Before an answer is shown, the engine detects scope misses, stale documents, missing owners, unofficial chat, conflicts, prompt injection, and gaps. |
+| Connect | An open challenge connects to the accountable expert for that country. Sofie or Daan can sign. Karim, who only posted in chat, cannot. |
+
 ## Demo
 
 Question, with the country left to the dial:
@@ -45,8 +54,9 @@ Open the app, leave the demo question in place, and change country, plan, or the
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint |
 | `npm test` | Vitest |
+| `npm run reset-demo` | Rewrites `data/rulings.json` to `[]` |
 
-The default model provider is `mock`. It extracts cut-off days with the same patterns the engine trusts, so the dials above are deterministic and do not call a network.
+The default model provider is `mock`. It extracts cut-off days with the same patterns the engine trusts, so the dials above are deterministic and do not call a network. If `LLM_PROVIDER=gemini` and that call throws, the same mock extractor answers and the custody line says `mock-fallback`.
 
 ## Environment
 
@@ -55,11 +65,10 @@ Copy `.env.example`. Real values belong in `.env.local`, which is gitignored tog
 | Variable | Where it is read | Notes |
 | --- | --- | --- |
 | `SESSION_SECRET` | Server. Signs the persona cookie, witness links, and rulings. | At least 16 characters. |
-| `LLM_PROVIDER` | Server. `mock` (default), `gemini`, `openai`, or `anthropic`. | |
+| `DEMO_MODE` | Server, `POST /api/session` only. | `true` allows the persona switch. Any other value returns 403. |
+| `LLM_PROVIDER` | Server. `mock` (default) or `gemini`. | A Gemini error falls back to mock. |
 | `GEMINI_API_KEY` | **Only** `lib/llm.ts`, and only on the server. | Sent as a header, never in the URL. Requests set `store: false`. |
-| `LLM_API_KEY` | Server, for OpenAI-compatible and Anthropic providers. | |
-| `LLM_MODEL` | Server. | Defaults: `gemini-3.8-flash`, `gpt-4o-mini`, `claude-3-5-haiku-latest`. |
-| `LLM_BASE_URL` | Server, OpenAI-compatible base URL. | |
+| `LLM_MODEL` | Server, Gemini only. | Default `gemini-3.8-flash`. The custody line shows `gemini:<model>`. |
 | `ELEVENLABS_API_KEY` | Server, `lib/speech.ts`. | If unset, deposition stays on typed answers and speech routes return 503. |
 | `ELEVENLABS_VOICE_ID` | Server. | Optional. A premade voice is used when this is empty. |
 
@@ -67,12 +76,12 @@ Copy `.env.example`. Real values belong in `.env.local`, which is gitignored tog
 
 ## What you see
 
-- **Persona.** Consultant BE, Finance, or Expert, stored in a signed httpOnly cookie. A missing or forged cookie fails closed to Consultant, who cannot read finance-only documents.
+- **Persona.** Consultant BE, Finance, or Expert, stored in a signed httpOnly cookie. Switching is allowed only when `DEMO_MODE=true`. A missing or forged cookie fails closed to Consultant, who cannot read finance-only documents.
 - **Dials.** Country (BE, NL, DE), plan (Standard, Flex), and an as-of date. Changing one re-runs the exam.
 - **Verdict.** Act (green), Act with care (amber), or Verify first (red), plus one plain sentence and the answer with source chips.
 - **Cross-examination.** One card per objection: type, severity, what would resolve it, and an evidence drawer (quote, hash, owner, age). Cards stagger by 150ms unless the user prefers reduced motion.
 - **Call the witness.** Shown when an objection has an accountable signer. Opens a single-use deposition.
-- **Custody line.** How many sources were checked, how many were quarantined, how many were restricted and not shown, and a SHA-256 seal.
+- **Custody line.** How many sources were checked, how many were quarantined, how many were restricted and not shown, a SHA-256 seal, and the extractor (`mock`, `gemini:<model>`, or `mock-fallback`).
 - **Footer.** Synthetic demo data. The session cookie is essential and is not used for tracking. Voice is not retained. A ruling is filed only after a person clicks Sign ruling.
 
 The page is one case file: large type, one green accent, no chat bubbles. Controls are keyboard accessible. Loading uses a skeleton. Failures stay on the page as an alert.
@@ -128,7 +137,7 @@ Every route validates input with zod, rate-limits by IP, and caps the body. Resp
 
 | Route | Limit | Body cap | Returns |
 | --- | --- | --- | --- |
-| `POST /api/ask` | 20/min | 32 KB | `{answer, evidence, objections, superseded, dossier, verdict, custody}` |
+| `POST /api/ask` | 20/min | 32 KB | `{answer, evidence, objections, superseded, dossier, verdict, custody, extractor}` |
 | `GET`/`POST /api/session` | 20/min | 2 KB | Sets or reads the persona cookie. |
 | `POST /api/witness/link` | 10/min | 16 KB | `{path}` for an expert who can sign. |
 | `POST /api/deposition/open` | 20/min | 8 KB | Questions for a valid token, plus the deposition cookie. |

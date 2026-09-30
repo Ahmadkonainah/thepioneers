@@ -12,8 +12,9 @@ import {
   SAFE_NO_CUTOFF,
 } from "@/lib/engine/output-guard";
 import { assignResolvers } from "@/lib/engine/resolvers";
-import { extractClaims, writeAnswer, type LlmClient } from "@/lib/llm";
-import { askResponseSchema, type AskResponse, type Context, type Expert, type Persona, type Ruling, type Source } from "@/lib/types";
+import { configuredExtractor, extractClaims, LlmError, writeAnswer, type LlmClient } from "@/lib/llm";
+import { mockLlmClient } from "@/lib/llm/mock";
+import { askResponseSchema, type AskResponse, type Context, type Expert, type Extractor, type Persona, type Ruling, type Source } from "@/lib/types";
 
 const CONFLICT_ANSWER =
   "The in-scope sources do not agree, so no cut-off date is stated.";
@@ -27,10 +28,32 @@ export async function runAsk(input: {
   experts: readonly Expert[];
   client: LlmClient;
 }): Promise<AskResponse> {
+  const configured = configuredExtractor();
+  try {
+    return await examine(input, input.client, configured);
+  } catch (error) {
+    // WHY: a Gemini failure must not invent a day. The local extractor takes over and the response says so.
+    if (!(error instanceof LlmError) || configured === "mock") throw error;
+    return examine(input, mockLlmClient, "mock-fallback");
+  }
+}
+
+async function examine(
+  input: {
+    question: string;
+    context: Context;
+    persona: Persona;
+    sources: readonly Source[];
+    rulings?: readonly Ruling[];
+    experts: readonly Expert[];
+  },
+  client: LlmClient,
+  extractor: Extractor,
+): Promise<AskResponse> {
   const rulings = input.rulings ?? [];
   const prepared = prepareCorpus(input.sources, input.persona, input.context, input.question);
   const extracted =
-    prepared.forModel.length === 0 ? [] : await extractClaims(input.question, prepared.forModel, input.client);
+    prepared.forModel.length === 0 ? [] : await extractClaims(input.question, prepared.forModel, client);
 
   const judgement = judge({
     extracted,
@@ -50,7 +73,7 @@ export async function runAsk(input: {
   let answer = "";
   if (judgement.noInScopeClaims) answer = "";
   else if (judgement.answerClaims.length === 0) answer = CONFLICT_ANSWER;
-  else answer = await writeAnswer(input.question, judgement.answerClaims, input.client);
+  else answer = await writeAnswer(input.question, judgement.answerClaims, client);
 
   const guarded = guardAnswer(answer, judgement.answerClaims);
   let objections = judgement.objections;
@@ -76,6 +99,7 @@ export async function runAsk(input: {
     superseded: judgement.superseded,
     dossier: judgement.dossier,
     verdict,
+    extractor,
     custody: buildCustody({
       checked: prepared.allowed.length,
       quarantined: prepared.quarantined,

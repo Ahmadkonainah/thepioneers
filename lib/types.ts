@@ -133,6 +133,9 @@ export const supersededSchema = z.object({
   message: z.string(),
 });
 
+/** gemini:<model> when that call succeeded, mock when it was selected, mock-fallback after a Gemini LlmError. */
+export const extractorSchema = z.string().regex(/^(mock|mock-fallback|gemini:[A-Za-z0-9._:-]+)$/);
+
 export const custodySchema = z.object({
   checked: z.number().int().nonnegative(),
   quarantined: z.number().int().nonnegative(),
@@ -148,6 +151,7 @@ export const askResponseSchema = z.object({
   dossier: z.array(dossierEntrySchema),
   verdict: verdictSchema,
   custody: custodySchema,
+  extractor: extractorSchema,
 });
 
 export const witnessLinkInputSchema = z.object({
@@ -182,4 +186,5 @@ export type Evidence = z.infer<typeof evidenceSchema>;
 export type DossierEntry = z.infer<typeof dossierEntrySchema>;
 export type SupersededNote = z.infer<typeof supersededSchema>;
 export type Custody = z.infer<typeof custodySchema>;
+export type Extractor = z.infer<typeof extractorSchema>;
 export type AskResponse = z.infer<typeof askResponseSchema>;

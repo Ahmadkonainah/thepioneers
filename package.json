@@ -9,7 +9,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "reset-demo": "node -e \"require('node:fs').writeFileSync('data/rulings.json','[]\\n')\""
   },
   "dependencies": {
     "@elevenlabs/elevenlabs-js": "^2.70.0",

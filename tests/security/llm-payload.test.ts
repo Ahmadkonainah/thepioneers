@@ -4,7 +4,7 @@ import { runAsk } from "@/lib/ask";
 import { loadExperts, loadSources } from "@/lib/corpus";
 import { DEMO_QUESTION } from "@/lib/demo";
 import { SYSTEM_EXTRACT } from "@/lib/llm/prompt";
-import { openAiRequestBody } from "@/lib/llm/providers";
+import { geminiRequestBody } from "@/lib/llm";
 import { recordingClient } from "../helpers";
 
 describe("injection source never reaches the LLM", () => {
@@ -26,9 +26,11 @@ describe("injection source never reaches the LLM", () => {
     expect(payload).toContain("be-procedure-v4");
   });
 
-  it("sends hosted models only a system message and a user message", () => {
-    const body = openAiRequestBody(SYSTEM_EXTRACT, `<question>\n${DEMO_QUESTION}\n</question>`, "gpt-4o-mini");
-    expect(body.messages.map((message) => message.role)).toEqual(["system", "user"]);
+  it("sends Gemini only the system instruction and the user input", () => {
+    const body = geminiRequestBody(SYSTEM_EXTRACT, `<question>\n${DEMO_QUESTION}\n</question>`, "gemini-3.8-flash");
+    expect(body.system_instruction).toBe(SYSTEM_EXTRACT);
+    expect(body.input).toContain(DEMO_QUESTION);
+    expect(body.store).toBe(false);
     expect("sources" in body).toBe(false);
   });
 });

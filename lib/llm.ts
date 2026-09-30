@@ -11,6 +11,13 @@ const answerPayloadSchema = z.object({ answer: z.string().min(1).max(4000) }).st
 const GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/interactions";
 const DEFAULT_GEMINI_MODEL = "gemini-3.8-flash";
 
+/** Label stored on the ask response. The model id is the configured one, not a name returned by Gemini. */
+export function configuredExtractor(): "mock" | `gemini:${string}` {
+  if ((process.env.LLM_PROVIDER ?? "mock") !== "gemini") return "mock";
+  const model = process.env.LLM_MODEL?.trim() || DEFAULT_GEMINI_MODEL;
+  return `gemini:${model}`;
+}
+
 export { LlmError } from "@/lib/llm/providers";
 export type { LlmClient } from "@/lib/llm/client";
 
@@ -108,8 +115,10 @@ function geminiClient(): LlmClient {
 }
 
 export function getLlmClient(): LlmClient {
-  if ((process.env.LLM_PROVIDER ?? "mock") === "gemini") return geminiClient();
-  return getHostedClient();
+  const provider = process.env.LLM_PROVIDER ?? "mock";
+  if (provider === "gemini") return geminiClient();
+  if (provider === "mock") return getHostedClient();
+  throw new LlmError("LLM_UNAVAILABLE", `Unknown LLM_PROVIDER "${provider}".`);
 }
 
 function coerceClaimList(raw: unknown): unknown {

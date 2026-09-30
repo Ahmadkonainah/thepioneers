@@ -255,7 +255,8 @@ export function CaseFile() {
               ) : null}
               <p className="font-mono text-xs text-muted-foreground" data-testid="custody">
                 {result.custody.checked} sources checked · {result.custody.quarantined} quarantined ·{" "}
-                {result.custody.restricted} restricted (not shown) · sealed with SHA-256 {result.custody.sha256.slice(0, 12)}
+                {result.custody.restricted} restricted (not shown) · sealed with SHA-256 {result.custody.sha256.slice(0, 12)} ·{" "}
+                extractor {result.extractor}
               </p>
               <h2 className="font-serif text-2xl">Cross-examination</h2>
               <ul className="flex flex-col gap-3">

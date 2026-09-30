@@ -59,6 +59,7 @@ describe("POST /api/ask", () => {
     const body = (await response.json()) as {
       verdict: string;
       answer: string;
+      extractor: string;
       custody: { restricted: number; quarantined: number; sha256: string };
     };
     expect(body.verdict).toBe("ACT_WITH_CARE");
@@ -70,11 +71,31 @@ describe("POST /api/ask", () => {
     expect(body.custody.restricted).toBe(1);
     expect(body.custody.quarantined).toBe(1);
     expect(body.custody.sha256).toMatch(/^[a-f0-9]{64}$/);
+    expect(body.extractor).toBe("mock");
   });
 });
 
 describe("persona cookie", () => {
+  it("refuses to switch persona unless DEMO_MODE is true", async () => {
+    const previous = process.env.DEMO_MODE;
+    delete process.env.DEMO_MODE;
+    try {
+      const response = await postSession(
+        new Request("http://localhost/api/session", {
+          method: "POST",
+          headers: { "content-type": "application/json", "x-forwarded-for": "203.0.113.49" },
+          body: JSON.stringify({ persona: "finance" }),
+        }),
+      );
+      expect(response.status).toBe(403);
+    } finally {
+      if (previous === undefined) delete process.env.DEMO_MODE;
+      else process.env.DEMO_MODE = previous;
+    }
+  });
+
   it("sets an httpOnly cookie and fails closed when the signature is wrong", async () => {
+    process.env.DEMO_MODE = "true";
     const response = await postSession(
       new Request("http://localhost/api/session", {
         method: "POST",

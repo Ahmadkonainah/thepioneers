@@ -2,7 +2,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
+import { runAsk } from "@/lib/ask";
+import { loadExperts, loadSources } from "@/lib/corpus";
+import { DEMO_QUESTION } from "@/lib/demo";
 import { geminiRequestBody, getLlmClient, LlmError } from "@/lib/llm";
+import type { LlmClient } from "@/lib/llm/client";
 
 const FAKE_KEY = "test-gemini-key";
 
@@ -99,6 +103,27 @@ describe("Gemini API key", () => {
         claims: [],
       }),
     ).rejects.toBeInstanceOf(LlmError);
+  });
+
+  it("falls back to the mock extractor when Gemini throws", async () => {
+    process.env.LLM_PROVIDER = "gemini";
+    process.env.LLM_MODEL = "gemini-3.8-flash";
+    const failing: LlmClient = {
+      async complete() {
+        throw new LlmError("LLM_UNAVAILABLE", "LLM HTTP 503.");
+      },
+    };
+    const result = await runAsk({
+      question: DEMO_QUESTION,
+      context: { country: "BE", plan: "Standard", asOf: "2026-09-30" },
+      persona: "consultant",
+      sources: loadSources(),
+      experts: loadExperts(),
+      client: failing,
+    });
+    expect(result.extractor).toBe("mock-fallback");
+    expect(result.answer).toContain("18th");
+    expect(result.answer).not.toContain("FIN-CONFIDENTIAL-7741");
   });
 
   it("is the only TypeScript module that names GEMINI_API_KEY", () => {
